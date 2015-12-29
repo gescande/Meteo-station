@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Station meteo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+
+<body>
+
+    <!--<h1 th:text="#{home.welcome}">Welcome to our grocery store!</h1>-->
+    <h1>Bienvenue dans la station météo!</h1>
+
+    <p>Les condtions climatiques sont les suivantes :
+        <ul>
+            <li th:text="'Humidité : '+${humidity}">Temperature</li>
+            <li th:text="'Luminosité : '+${luminosity}">Temperature</li>
+            <li th:text="'Temperature : '+${temperature}">Temperature</li>
+        </ul>
+    </p>
+
+    <!--<p th:text="'Hello, ' + ${name} + '!'" />-->
+
+</body>
+
+</html>
