@@ -5,9 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -18,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import meteoSpringBoot.persistance.SpringMongoConfig;
 import meteoSpringBoot.persistance.WeatherDirectory;
+import meteoSpringBoot.weatherStatement.Humidity;
+import meteoSpringBoot.weatherStatement.Luminosity;
+import meteoSpringBoot.weatherStatement.Temperature;
 import meteoSpringBoot.weatherStatement.Weather;
 
 @Controller
@@ -36,12 +35,12 @@ class WeatherController
 
         Collections.sort(weatherList);
 
-        int hum=0;int lum=0;int temp =0;
+
         if (weatherList.size()!= 0)
         {
-            hum = weatherList.get(weatherList.size()-1).getHumidity().getValue();
-            lum = weatherList.get(weatherList.size()-1).getLuminosity().getValue();
-            temp = weatherList.get(weatherList.size()-1).getTemperature().getValue();
+            Humidity hum = weatherList.get(weatherList.size()-1).getHumidity();
+            Luminosity lum = weatherList.get(weatherList.size()-1).getLuminosity();
+            Temperature temp = weatherList.get(weatherList.size()-1).getTemperature();
 
             model.addAttribute("humidity", hum);
             model.addAttribute("luminosity", lum);
@@ -55,15 +54,15 @@ class WeatherController
     String all(Model model) {
         List<Weather> weatherList = weatherDirectory.findAll();
         Collections.sort(weatherList);
+
+        model.addAttribute("weathers", weatherList);
+
         return "all";
     }
 
     @RequestMapping(method = {RequestMethod.POST})
     ResponseEntity<?> store(@RequestBody String json)
     {
-        ApplicationContext ctx = new AnnotationConfigApplicationContext(SpringMongoConfig.class);
-        MongoOperations mongoOperation = (MongoOperations) ctx.getBean("mongoTemplate");
-
         Weather weather = new Weather();
         try
         {
@@ -73,7 +72,7 @@ class WeatherController
         {
             e.printStackTrace();
         }
-        mongoOperation.save(weather);
+        weatherDirectory.save(weather);
         return new ResponseEntity<>(null, HttpStatus.CREATED);
     }
 
