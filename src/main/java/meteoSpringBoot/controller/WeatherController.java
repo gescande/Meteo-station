@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import meteoSpringBoot.email.Email;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,6 +28,8 @@ import meteoSpringBoot.weatherStatement.Weather;
 @RequestMapping(value = "/")
 class WeatherController
 {
+    private static final Logger logger = Logger.getLogger(WeatherController.class);
+
     @Autowired
     private WeatherDirectory weatherDirectory;
 
@@ -45,13 +50,17 @@ class WeatherController
             model.addAttribute("humidity", hum);
             model.addAttribute("luminosity", lum);
             model.addAttribute("temperature", temp);
+
         }
 
-        return "home";
+        model.addAttribute("weathers", weatherList);
+
+        return "index";
     }
 
-    @RequestMapping(value = "/all", method = {RequestMethod.GET})
-    String all(Model model) {
+    @RequestMapping(value = "/email", method = {RequestMethod.POST})
+    String emailSubmit (@ModelAttribute Email email, Model model) {
+
         List<Weather> weatherList = weatherDirectory.findAll();
         Collections.sort(weatherList);
 
@@ -70,7 +79,7 @@ class WeatherController
         }
         catch (IOException e)
         {
-            e.printStackTrace();
+            logger.error(e);
         }
         weatherDirectory.save(weather);
         return new ResponseEntity<>(null, HttpStatus.CREATED);
